@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% block title %}登录 - {{ site_name }}{% endblock %}
+
+{% block styles %}
+<style>
+    .login-container {
+        max-width: 400px;
+        margin: 2rem auto;
+        padding: 2rem;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    .login-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    
+    .login-header h1 {
+        color: var(--primary-color);
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .login-header p {
+        color: var(--secondary-color);
+        margin-bottom: 0;
+    }
+    
+    .form-floating {
+        margin-bottom: 1rem;
+    }
+    
+    .form-floating input {
+        border-radius: 10px;
+    }
+    
+    .form-floating label {
+        padding-left: 1rem;
+    }
+    
+    .btn-login {
+        width: 100%;
+        padding: 0.8rem;
+        font-size: 1.1rem;
+        border-radius: 10px;
+        margin-top: 1rem;
+    }
+    
+    .login-footer {
+        text-align: center;
+        margin-top: 1.5rem;
+    }
+    
+    .login-footer a {
+        color: var(--primary-color);
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+    
+    .login-footer a:hover {
+        color: #0056b3;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="login-container">
+    <div class="login-header">
+        <h1>欢迎回来</h1>
+        <p>登录您的数潮账号</p>
+    </div>
+    
+    <form method="POST" action="{{ url_for('auth.login') }}" id="loginForm">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        
+        <div class="form-floating">
+            <input type="email" class="form-control" id="email" name="email" placeholder="邮箱" required>
+            <label for="email">邮箱</label>
+        </div>
+        
+        <div class="form-floating">
+            <input type="password" class="form-control" id="password" name="password" placeholder="密码" required>
+            <label for="password">密码</label>
+        </div>
+        
+        <div class="form-check mb-3">
+            <input type="checkbox" class="form-check-input" id="remember" name="remember">
+            <label class="form-check-label" for="remember">记住我</label>
+        </div>
+        
+        <button type="submit" class="btn btn-primary btn-login">
+            <i class="fas fa-sign-in-alt me-2"></i>登录
+        </button>
+    </form>
+    
+    <div class="login-footer">
+        <p class="mb-1">
+            <a href="{{ url_for('auth.forgot_password') }}">忘记密码？</a>
+        </p>
+        <p>
+            还没有账号？
+            <a href="{{ url_for('auth.register') }}">立即注册</a>
+        </p>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.getElementById('loginForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    
+    try {
+        const response = await fetch(this.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'Accept': 'application/json',
+                'X-CSRFToken': document.querySelector('input[name="csrf_token"]').value
+            }
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            window.location.href = "{{ url_for('ai.chat') }}";
+        } else {
+            alert(result.error || '登录失败，请检查邮箱和密码。');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('登录时发生错误，请稍后重试。');
+    }
+});
+</script>
+{% endblock %}

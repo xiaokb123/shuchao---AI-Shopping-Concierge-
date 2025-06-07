@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}反馈 - 数潮{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>用户反馈</h2>
+    <form method="POST" action="{{ url_for('feedback.get_feedback') }}">
+        {{ form.csrf_token }}
+        <div class="form-group">
+            {{ form.feedback_type.label }}
+            {{ form.feedback_type(class="form-control") }}
+            {% if form.feedback_type.errors %}
+                <div class="text-danger">
+                    {% for error in form.feedback_type.errors %}
+                        <small>{{ error }}</small>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+        <div class="form-group">
+            {{ form.content.label }}
+            {{ form.content(class="form-control", rows=5) }}
+            {% if form.content.errors %}
+                <div class="text-danger">
+                    {% for error in form.content.errors %}
+                        <small>{{ error }}</small>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+        <div class="form-group">
+            {{ form.contact.label }}
+            {{ form.contact(class="form-control") }}
+        </div>
+        <button type="submit" class="btn btn-primary">提交反馈</button>
+    </form>
+</div>
+{% endblock %}

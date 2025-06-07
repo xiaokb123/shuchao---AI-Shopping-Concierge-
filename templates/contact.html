@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+
+{% block title %}联系我们 - {{ site_name }}{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <h1 class="text-center mb-4">联系我们</h1>
+            
+            <div class="row mb-5">
+                <div class="col-md-4">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <i class="fas fa-envelope text-primary fs-1 mb-3"></i>
+                            <h3 class="h5">电子邮件</h3>
+                            <p class="mb-0">support@example.com</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <i class="fas fa-phone text-primary fs-1 mb-3"></i>
+                            <h3 class="h5">客服热线</h3>
+                            <p class="mb-0">400-123-4567</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <i class="fas fa-map-marker-alt text-primary fs-1 mb-3"></i>
+                            <h3 class="h5">公司地址</h3>
+                            <p class="mb-0">北京市朝阳区xxx街xxx号</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="h4 mb-4">给我们留言</h2>
+                    <form id="contactForm" method="POST" action="{{ url_for('main.contact') }}">
+                        <div class="mb-3">
+                            <label for="name" class="form-label">您的姓名</label>
+                            <input type="text" class="form-control" id="name" name="name" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="email" class="form-label">电子邮箱</label>
+                            <input type="email" class="form-control" id="email" name="email" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="subject" class="form-label">主题</label>
+                            <input type="text" class="form-control" id="subject" name="subject" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="message" class="form-label">留言内容</label>
+                            <textarea class="form-control" id="message" name="message" rows="5" required></textarea>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">提交留言</button>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="card mt-4">
+                <div class="card-body">
+                    <h2 class="h4 mb-4">关注我们</h2>
+                    <div class="row text-center">
+                        <div class="col-4">
+                            <i class="fab fa-weixin text-success fs-1"></i>
+                            <p class="mt-2">微信公众号</p>
+                        </div>
+                        <div class="col-4">
+                            <i class="fab fa-weibo text-danger fs-1"></i>
+                            <p class="mt-2">官方微博</p>
+                        </div>
+                        <div class="col-4">
+                            <i class="fab fa-qq text-primary fs-1"></i>
+                            <p class="mt-2">QQ客服</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.getElementById('contactForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    
+    try {
+        const response = await fetch(this.action, {
+            method: 'POST',
+            body: formData
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            alert('留言已提交，我们会尽快回复您！');
+            this.reset();
+        } else {
+            alert(data.message || '提交失败，请稍后重试。');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('发生错误，请稍后重试。');
+    }
+});
+</script>
+{% endblock %} 

@@ -1,0 +1,274 @@
+{% extends "base.html" %}
+
+{% block title %}发布帖子 - {{ site_name }}{% endblock %}
+
+{% block styles %}
+<style>
+    .create-post-header {
+        background: linear-gradient(135deg, #6366F1 0%, #4F46E5 100%);
+        padding: 3rem 0;
+        color: white;
+        margin-bottom: 2rem;
+    }
+
+    .post-form-card {
+        border: none;
+        border-radius: 1rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    .form-control {
+        border-radius: 0.5rem;
+        border: 1px solid #e2e8f0;
+        padding: 0.75rem 1rem;
+    }
+
+    .form-control:focus {
+        border-color: #4F46E5;
+        box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.1);
+    }
+
+    .form-label {
+        font-weight: 500;
+        color: #1a1a1a;
+        margin-bottom: 0.5rem;
+    }
+
+    .btn-submit {
+        background: #4F46E5;
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.5rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .btn-submit:hover {
+        background: #4338CA;
+        transform: translateY(-2px);
+    }
+
+    .btn-cancel {
+        color: #4F46E5;
+        background: rgba(79, 70, 229, 0.1);
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.5rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .btn-cancel:hover {
+        background: rgba(79, 70, 229, 0.2);
+    }
+
+    .post-type-selector {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .post-type-option {
+        flex: 1;
+        text-align: center;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        border: 2px solid #e2e8f0;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .post-type-option:hover {
+        border-color: #4F46E5;
+        background: rgba(79, 70, 229, 0.05);
+    }
+
+    .post-type-option.selected {
+        border-color: #4F46E5;
+        background: rgba(79, 70, 229, 0.1);
+    }
+
+    .post-type-option i {
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+        color: #4F46E5;
+    }
+
+    .editor-toolbar {
+        border-top-left-radius: 0.5rem;
+        border-top-right-radius: 0.5rem;
+        border-color: #e2e8f0;
+    }
+
+    .CodeMirror {
+        border-bottom-left-radius: 0.5rem;
+        border-bottom-right-radius: 0.5rem;
+        border-color: #e2e8f0;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="create-post-header">
+    <div class="container">
+        <h1 class="mb-2">发布帖子</h1>
+        <p class="mb-0">分享您的购物经验和见解</p>
+    </div>
+</section>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card post-form-card">
+                <div class="card-body p-4">
+                    <form id="postForm" method="POST">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        
+                        <!-- 帖子类型选择 -->
+                        <div class="post-type-selector">
+                            <div class="post-type-option" data-type="review">
+                                <i class="fas fa-star"></i>
+                                <h6>商品评测</h6>
+                                <small class="text-muted">分享您的使用体验</small>
+                            </div>
+                            <div class="post-type-option" data-type="question">
+                                <i class="fas fa-question-circle"></i>
+                                <h6>求推荐</h6>
+                                <small class="text-muted">寻求购物建议</small>
+                            </div>
+                            <div class="post-type-option" data-type="discussion">
+                                <i class="fas fa-comments"></i>
+                                <h6>讨论</h6>
+                                <small class="text-muted">发起话题讨论</small>
+                            </div>
+                        </div>
+                        <input type="hidden" name="post_type" id="postType" value="review">
+                        
+                        <!-- 标题 -->
+                        <div class="mb-3">
+                            <label for="title" class="form-label">标题</label>
+                            <input type="text" class="form-control" id="title" name="title" required
+                                   placeholder="请输入帖子标题">
+                        </div>
+                        
+                        <!-- 关联商品（评测类型时显示） -->
+                        <div class="mb-3" id="productSection">
+                            <label for="product" class="form-label">关联商品</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="productSearch" 
+                                       placeholder="搜索商品">
+                                <button class="btn btn-outline-primary" type="button">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                            <div id="productResults" class="mt-2"></div>
+                        </div>
+                        
+                        <!-- 内容 -->
+                        <div class="mb-4">
+                            <label for="content" class="form-label">内容</label>
+                            <textarea class="form-control" id="content" name="content" rows="10" required
+                                      placeholder="请输入帖子内容"></textarea>
+                        </div>
+                        
+                        <!-- 标签 -->
+                        <div class="mb-4">
+                            <label class="form-label">标签</label>
+                            <input type="text" class="form-control" id="tags" name="tags" 
+                                   placeholder="输入标签，用逗号分隔">
+                        </div>
+                        
+                        <!-- 按钮 -->
+                        <div class="d-flex justify-content-end gap-3">
+                            <a href="{{ url_for('forum.index') }}" class="btn btn-cancel">取消</a>
+                            <button type="submit" class="btn btn-submit">
+                                <i class="fas fa-paper-plane me-2"></i>发布
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 帖子类型选择
+    const typeOptions = document.querySelectorAll('.post-type-option');
+    const postTypeInput = document.getElementById('postType');
+    const productSection = document.getElementById('productSection');
+    
+    typeOptions.forEach(option => {
+        option.addEventListener('click', function() {
+            // 移除其他选项的选中状态
+            typeOptions.forEach(opt => opt.classList.remove('selected'));
+            // 添加当前选项的选中状态
+            this.classList.add('selected');
+            // 更新隐藏输入
+            const type = this.dataset.type;
+            postTypeInput.value = type;
+            // 显示/隐藏商品选择
+            if (type === 'review') {
+                productSection.style.display = 'block';
+            } else {
+                productSection.style.display = 'none';
+            }
+        });
+    });
+    
+    // 表单提交
+    document.getElementById('postForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        try {
+            const formData = new FormData(this);
+            const response = await fetch("{{ url_for('forum.create_post') }}", {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').content
+                }
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                window.location.href = result.redirect_url;
+            } else {
+                alert(result.message || '发布失败，请重试');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('发布失败，请重试');
+        }
+    });
+    
+    // 初始化编辑器
+    if (typeof SimpleMDE !== 'undefined') {
+        new SimpleMDE({
+            element: document.getElementById('content'),
+            spellChecker: false,
+            status: false,
+            placeholder: '请输入帖子内容...'
+        });
+    }
+    
+    // 初始化标签输入
+    if (typeof Tagify !== 'undefined') {
+        new Tagify(document.getElementById('tags'), {
+            maxTags: 5,
+            dropdown: {
+                maxItems: 5,
+                classname: 'tags-dropdown',
+                enabled: 0,
+                closeOnSelect: false
+            }
+        });
+    }
+});
+</script>
+{% endblock %} 

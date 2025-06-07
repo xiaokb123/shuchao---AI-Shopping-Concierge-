@@ -1,0 +1,252 @@
+{% extends "base.html" %}
+
+{% block title %}欢迎来到数潮商城{% endblock %}
+
+{% block styles %}
+<style>
+    .hero {
+        background: linear-gradient(135deg, var(--primary-color), #0056b3);
+        color: white;
+        padding: 4rem 0;
+        margin-top: -2rem;
+    }
+    
+    .hero h1 {
+        font-size: 3rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+    }
+    
+    .hero p {
+        font-size: 1.25rem;
+        opacity: 0.9;
+        margin-bottom: 2rem;
+    }
+    
+    .feature-card {
+        height: 100%;
+        transition: transform 0.3s ease;
+    }
+    
+    .feature-card:hover {
+        transform: translateY(-10px);
+    }
+    
+    .feature-icon {
+        font-size: 2.5rem;
+        margin-bottom: 1.5rem;
+        color: var(--primary-color);
+    }
+    
+    .cta-section {
+        background-color: #f8f9fa;
+        padding: 4rem 0;
+    }
+    
+    .testimonial-card {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        margin: 1rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    .testimonial-avatar {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        margin-bottom: 1rem;
+    }
+    
+    .stats-section {
+        background-color: var(--primary-color);
+        color: white;
+        padding: 3rem 0;
+    }
+    
+    .stat-item h3 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+    
+    .stat-item p {
+        font-size: 1.1rem;
+        opacity: 0.9;
+    }
+    
+    @media (max-width: 768px) {
+        .hero {
+            padding: 3rem 0;
+        }
+        
+        .hero h1 {
+            font-size: 2rem;
+        }
+        
+        .hero p {
+            font-size: 1.1rem;
+        }
+        
+        .feature-card {
+            margin-bottom: 2rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="jumbotron bg-white p-5 rounded shadow-sm">
+        <h1 class="display-4">欢迎来到数潮商城</h1>
+        <p class="lead">智能导购，为您推荐最适合的商品</p>
+        <hr class="my-4">
+        <p>让AI助手帮您找到心仪的商品</p>
+        {% if current_user.is_authenticated %}
+        <a class="btn btn-primary btn-lg" href="{{ url_for('ai.chat') }}" role="button">
+            <i class="fas fa-robot me-2"></i>开始对话
+        </a>
+        {% else %}
+        <div class="d-flex gap-3">
+            <a class="btn btn-primary btn-lg" href="{{ url_for('auth.login') }}" role="button">
+                <i class="fas fa-sign-in-alt me-2"></i>登录
+            </a>
+            <a class="btn btn-outline-primary btn-lg" href="{{ url_for('auth.register') }}" role="button">
+                <i class="fas fa-user-plus me-2"></i>注册
+            </a>
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- 特色功能 -->
+    <div class="row mt-5">
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-robot fa-3x text-primary mb-3"></i>
+                    <h5 class="card-title">AI智能导购</h5>
+                    <p class="card-text">通过AI技术，为您提供个性化的购物建议</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-comments fa-3x text-success mb-3"></i>
+                    <h5 class="card-title">用户社区</h5>
+                    <p class="card-text">分享购物经验，获取真实用户评价</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-chart-line fa-3x text-info mb-3"></i>
+                    <h5 class="card-title">智能比价</h5>
+                    <p class="card-text">自动比较多平台价格，助您购物更省心</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 数据统计 -->
+<section class="stats-section">
+    <div class="container">
+        <div class="row text-center">
+            <div class="col-md-4 mb-4 mb-md-0">
+                <div class="stat-item">
+                    <h3>100万+</h3>
+                    <p>注册用户</p>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4 mb-md-0">
+                <div class="stat-item">
+                    <h3>5000+</h3>
+                    <p>每日推荐</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-item">
+                    <h3>98%</h3>
+                    <p>用户满意度</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 用户评价 -->
+<section class="py-5">
+    <div class="container">
+        <h2 class="text-center mb-5">用户评价</h2>
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <div class="testimonial-card">
+                    <img src="https://via.placeholder.com/64" alt="用户头像" class="testimonial-avatar">
+                    <h4>张先生</h4>
+                    <p class="text-muted">IT工程师</p>
+                    <p>"AI助手帮我选择了一台性价比极高的笔记本电脑，省去了大量对比的时间。"</p>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="testimonial-card">
+                    <img src="https://via.placeholder.com/64" alt="用户头像" class="testimonial-avatar">
+                    <h4>李女士</h4>
+                    <p class="text-muted">自由职业者</p>
+                    <p>"预算管理功能很实用，帮我控制了购物支出，推荐的商品都很符合需求。"</p>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="testimonial-card">
+                    <img src="https://via.placeholder.com/64" alt="用户头像" class="testimonial-avatar">
+                    <h4>王先生</h4>
+                    <p class="text-muted">学生</p>
+                    <p>"智能比价功能帮我省了不少钱，推荐的商品质量都很好，很满意。"</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 行动召唤 -->
+<section class="cta-section">
+    <div class="container text-center">
+        <h2 class="mb-4">开启智能购物之旅</h2>
+        <p class="mb-4">加入数潮商城，让AI为您推荐最适合的商品</p>
+        <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg">立即注册</a>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // 数字增长动画
+    function animateValue(element, start, end, duration) {
+        let startTimestamp = null;
+        const step = (timestamp) => {
+            if (!startTimestamp) startTimestamp = timestamp;
+            const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+            element.innerHTML = Math.floor(progress * (end - start) + start).toLocaleString();
+            if (progress < 1) {
+                window.requestAnimationFrame(step);
+            }
+        };
+        window.requestAnimationFrame(step);
+    }
+    
+    // 当元素进入视口时触发动画
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const element = entry.target;
+                const value = parseInt(element.innerHTML.replace(/,/g, ''));
+                animateValue(element, 0, value, 2000);
+                observer.unobserve(element);
+            }
+        });
+    });
+    
+    document.querySelectorAll('.stat-item h3').forEach(el => observer.observe(el));
+</script>
+{% endblock %} 

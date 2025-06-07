@@ -1,0 +1,340 @@
+{% extends "base.html" %}
+
+{% block title %}论坛 - {{ site_name }}{% endblock %}
+
+{% block styles %}
+<style>
+    .forum-header {
+        background: linear-gradient(135deg, #6366F1 0%, #4F46E5 100%);
+        padding: 3rem 0;
+        color: white;
+        margin-bottom: 2rem;
+    }
+
+    .post-card {
+        border: none;
+        transition: all 0.3s ease;
+        margin-bottom: 1rem;
+    }
+
+    .post-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .post-title {
+        color: #1a1a1a;
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .post-title:hover {
+        color: #4F46E5;
+    }
+
+    .post-meta {
+        font-size: 0.875rem;
+        color: #666;
+    }
+
+    .post-preview {
+        color: #4a5568;
+        font-size: 0.95rem;
+        margin-top: 0.5rem;
+    }
+
+    .post-action {
+        color: #666;
+        text-decoration: none;
+        font-size: 0.9rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.25rem;
+        transition: all 0.2s ease;
+    }
+
+    .post-action:hover {
+        background-color: #f3f4f6;
+        color: #4F46E5;
+    }
+
+    .post-type-badge {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.75rem;
+        border-radius: 1rem;
+        font-weight: 500;
+    }
+
+    .sidebar-card {
+        border: none;
+        border-radius: 1rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        margin-bottom: 1.5rem;
+    }
+
+    .tag-cloud {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .tag {
+        font-size: 0.875rem;
+        padding: 0.25rem 0.75rem;
+        border-radius: 1rem;
+        background: #f3f4f6;
+        color: #4a5568;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+
+    .tag:hover {
+        background: #4F46E5;
+        color: white;
+    }
+
+    .btn-create-post {
+        background: #4F46E5;
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.5rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .btn-create-post:hover {
+        background: #4338CA;
+        transform: translateY(-2px);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="forum-header">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="mb-2">数潮论坛</h1>
+                <p class="mb-0">分享购物经验，获取真实评测</p>
+            </div>
+            {% if current_user.is_authenticated %}
+            <a href="{{ url_for('forum.create_post') }}" class="btn btn-create-post">
+                <i class="fas fa-plus me-2"></i>发布帖子
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<div class="container">
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- 帖子过滤器 -->
+            <div class="mb-4">
+                <div class="btn-group" role="group">
+                    <input type="radio" class="btn-check" name="post-type" id="all" value="all" checked>
+                    <label class="btn btn-outline-primary" for="all">全部</label>
+                    
+                    <input type="radio" class="btn-check" name="post-type" id="review" value="review">
+                    <label class="btn btn-outline-primary" for="review">商品评测</label>
+                    
+                    <input type="radio" class="btn-check" name="post-type" id="question" value="question">
+                    <label class="btn btn-outline-primary" for="question">求推荐</label>
+                    
+                    <input type="radio" class="btn-check" name="post-type" id="discussion" value="discussion">
+                    <label class="btn btn-outline-primary" for="discussion">讨论</label>
+                </div>
+            </div>
+
+            <!-- 帖子列表 -->
+            {% for post in posts.items %}
+            <div class="card post-card" data-post-type="{{ post.post_type }}">
+                <div class="card-body">
+                    <div class="d-flex">
+                        <img src="{{ post.author.avatar_url|default('https://via.placeholder.com/40') }}" 
+                             class="rounded-circle me-3" width="40" height="40" alt="avatar">
+                        <div class="flex-grow-1">
+                            <h5 class="mb-1">
+                                <a href="{{ url_for('forum.post_detail', post_id=post.id) }}" class="post-title">
+                                    {% if post.post_type != 'normal' %}
+                                    <span class="badge bg-{{ post.post_type|post_type_color }} post-type-badge me-2">
+                                        {{ post.post_type|post_type_text }}
+                                    </span>
+                                    {% endif %}
+                                    {{ post.title }}
+                                </a>
+                            </h5>
+                            <div class="post-meta mb-2">
+                                <a href="#" class="text-decoration-none">{{ post.author.username }}</a>
+                                <span class="mx-1">·</span>
+                                <span title="{{ post.created_at }}">{{ post.created_at|time_ago }}</span>
+                            </div>
+                            <p class="post-preview">{{ post.content[:200]|striptags }}{% if post.content|length > 200 %}...{% endif %}</p>
+                            <div class="d-flex align-items-center mt-3">
+                                <a href="{{ url_for('forum.post_detail', post_id=post.id) }}#comments" class="post-action me-3">
+                                    <i class="far fa-comment me-1"></i>{{ post.comments|length }}
+                                </a>
+                                <button class="btn btn-link post-action p-0 me-3 like-btn" data-post-id="{{ post.id }}">
+                                    <i class="far fa-heart me-1"></i>{{ post.likes|length }}
+                                </button>
+                                {% if post.product %}
+                                <a href="{{ url_for('products.detail', product_id=post.product.id) }}" 
+                                   class="btn btn-sm btn-outline-primary ms-auto">
+                                    查看商品
+                                </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-comments fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">暂无帖子</h5>
+                {% if current_user.is_authenticated %}
+                <a href="{{ url_for('forum.create_post') }}" class="btn btn-primary mt-3">
+                    发表第一个帖子
+                </a>
+                {% endif %}
+            </div>
+            {% endfor %}
+
+            <!-- 分页 -->
+            {% if posts.pages > 1 %}
+            <nav class="mt-4">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item {% if not posts.has_prev %}disabled{% endif %}">
+                        <a class="page-link" href="{{ url_for('forum.index', page=posts.prev_num) }}">
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                    </li>
+                    
+                    {% for page in range(1, posts.pages + 1) %}
+                    {% if page == 1 or page == posts.pages or (page >= posts.page - 2 and page <= posts.page + 2) %}
+                    <li class="page-item {% if page == posts.page %}active{% endif %}">
+                        <a class="page-link" href="{{ url_for('forum.index', page=page) }}">{{ page }}</a>
+                    </li>
+                    {% endif %}
+                    {% endfor %}
+                    
+                    <li class="page-item {% if not posts.has_next %}disabled{% endif %}">
+                        <a class="page-link" href="{{ url_for('forum.index', page=posts.next_num) }}">
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+
+        <div class="col-lg-4">
+            <!-- 统计信息 -->
+            <div class="card sidebar-card">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">论坛统计</h5>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">帖子总数</span>
+                        <span class="fw-bold">{{ posts.total }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span class="text-muted">今日新帖</span>
+                        <span class="fw-bold">{{ posts.items|selectattr('created_at', 'ge', today)|list|length }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 热门标签 -->
+            <div class="card sidebar-card">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">热门标签</h5>
+                    <div class="tag-cloud">
+                        <a href="#" class="tag">电子产品</a>
+                        <a href="#" class="tag">数码</a>
+                        <a href="#" class="tag">手机</a>
+                        <a href="#" class="tag">电脑</a>
+                        <a href="#" class="tag">相机</a>
+                        <a href="#" class="tag">智能家居</a>
+                        <a href="#" class="tag">耳机</a>
+                        <a href="#" class="tag">平板</a>
+                    </div>
+                </div>
+            </div>
+
+            {% if current_user.is_authenticated %}
+            <!-- 我的帖子 -->
+            <div class="card sidebar-card">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">我的帖子</h5>
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('forum.create_post') }}" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>发布新帖子
+                        </a>
+                        <a href="#" class="btn btn-outline-primary">
+                            <i class="fas fa-list me-2"></i>我的帖子列表
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 帖子类型过滤
+    const postTypeFilters = document.querySelectorAll('input[name="post-type"]');
+    const postCards = document.querySelectorAll('.post-card');
+    
+    postTypeFilters.forEach(filter => {
+        filter.addEventListener('change', function() {
+            const selectedType = this.value;
+            postCards.forEach(card => {
+                if (selectedType === 'all' || card.dataset.postType === selectedType) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+    });
+
+    // 点赞功能
+    const likeBtns = document.querySelectorAll('.like-btn');
+    likeBtns.forEach(btn => {
+        btn.addEventListener('click', async function() {
+            if (!this.disabled) {
+                const postId = this.dataset.postId;
+                try {
+                    const response = await fetch(`/forum/post/${postId}/like`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').content
+                        }
+                    });
+                    
+                    const data = await response.json();
+                    if (data.success) {
+                        const icon = this.querySelector('i');
+                        const count = this.querySelector('span');
+                        if (icon.classList.contains('fas')) {
+                            icon.classList.replace('fas', 'far');
+                            count.textContent = parseInt(count.textContent) - 1;
+                        } else {
+                            icon.classList.replace('far', 'fas');
+                            count.textContent = parseInt(count.textContent) + 1;
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                }
+            }
+        });
+    });
+});
+</script>
+{% endblock %} 

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="30" viewBox="0 0 120 30">
+    <style>
+        .logo-text { font: bold 24px Arial; fill: #007bff; }
+        .tagline { font: 12px Arial; fill: #6c757d; }
+    </style>
+    <text x="5" y="24" class="logo-text">数潮</text>
+    <text x="60" y="20" class="tagline">AI导购</text>
+</svg> 

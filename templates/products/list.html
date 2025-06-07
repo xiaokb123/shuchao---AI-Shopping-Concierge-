@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+
+{% block title %}商品列表 - 数潮{% endblock %}
+
+{% block content %}
+<div class="products-container">
+    <div class="filters">
+        <div class="search-box">
+            <input type="text" id="search" placeholder="搜索商品...">
+            <button class="btn btn-primary">搜索</button>
+        </div>
+        <div class="category-filters">
+            <select id="category">
+                <option value="">所有分类</option>
+                <option value="books">商品</option>
+                <option value="electronics">电子产品</option>
+                <option value="clothing">服装</option>
+            </select>
+        </div>
+        <div class="sort-options">
+            <select id="sort">
+                <option value="price_asc">价格从低到高</option>
+                <option value="price_desc">价格从高到低</option>
+                <option value="rating">评分</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="products-grid" id="products-list">
+        <!-- 商品列表将通过 JavaScript 动态加载 -->
+    </div>
+
+    <div class="pagination">
+        <!-- 分页控件将通过 JavaScript 动态加载 -->
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// 加载商品列表
+function loadProducts(page = 1) {
+    const category = document.getElementById('category').value;
+    const sort = document.getElementById('sort').value;
+    const search = document.getElementById('search').value;
+
+    fetch(`/api/products/api/list?page=${page}&category=${category}&sort=${sort}&search=${search}`)
+        .then(response => response.json())
+        .then(data => {
+            const productsGrid = document.getElementById('products-list');
+            productsGrid.innerHTML = '';
+
+            data.items.forEach(product => {
+                const productCard = `
+                    <div class="product-card">
+                        <img src="${product.image_url || '/static/images/default-product.png'}" alt="${product.name}">
+                        <div class="product-info">
+                            <h3>${product.name}</h3>
+                            <p class="description">${product.description}</p>
+                            <div class="price-info">
+                                <span class="current-price">¥${product.current_price}</span>
+                                ${product.original_price ? `<span class="original-price">¥${product.original_price}</span>` : ''}
+                            </div>
+                            <div class="platform-info">
+                                <span class="platform">${product.platform}</span>
+                                ${product.discount_info ? `<span class="discount">${product.discount_info}</span>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                productsGrid.innerHTML += productCard;
+            });
+
+            // 更新分页
+            updatePagination(data.current_page, data.pages);
+        })
+        .catch(error => console.error('Error loading products:', error));
+}
+
+// 更新分页控件
+function updatePagination(currentPage, totalPages) {
+    const pagination = document.querySelector('.pagination');
+    let paginationHtml = '';
+
+    if (totalPages > 1) {
+        if (currentPage > 1) {
+            paginationHtml += `<button onclick="loadProducts(${currentPage - 1})">上一页</button>`;
+        }
+
+        for (let i = 1; i <= totalPages; i++) {
+            if (i === currentPage) {
+                paginationHtml += `<button class="active">${i}</button>`;
+            } else {
+                paginationHtml += `<button onclick="loadProducts(${i})">${i}</button>`;
+            }
+        }
+
+        if (currentPage < totalPages) {
+            paginationHtml += `<button onclick="loadProducts(${currentPage + 1})">下一页</button>`;
+        }
+    }
+
+    pagination.innerHTML = paginationHtml;
+}
+
+// 初始加载
+document.addEventListener('DOMContentLoaded', () => {
+    loadProducts();
+
+    // 添加事件监听器
+    document.getElementById('category').addEventListener('change', () => loadProducts());
+    document.getElementById('sort').addEventListener('change', () => loadProducts());
+    document.getElementById('search').addEventListener('input', debounce(() => loadProducts(), 500));
+});
+
+// 防抖函数
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+</script>
+{% endblock %} 

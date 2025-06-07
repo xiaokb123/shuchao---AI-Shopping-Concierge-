@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %}关于我们 - {{ site_name }}{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <h1 class="text-center mb-4">关于{{ site_name }}</h1>
+            
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2 class="h4 mb-3">我们的使命</h2>
+                    <p>{{ site_name }}致力于为用户提供智能化的购物体验。通过结合人工智能技术，我们帮助用户在海量商品中找到最适合的选择，让购物变得更加轻松、愉快。</p>
+                </div>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2 class="h4 mb-3">核心优势</h2>
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-start">
+                                <i class="fas fa-robot text-primary fs-4 me-3 mt-1"></i>
+                                <div>
+                                    <h3 class="h5">AI智能推荐</h3>
+                                    <p class="text-muted">基于深度学习的个性化商品推荐系统，精准匹配用户需求。</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-start">
+                                <i class="fas fa-search text-primary fs-4 me-3 mt-1"></i>
+                                <div>
+                                    <h3 class="h5">智能搜索</h3>
+                                    <p class="text-muted">多维度商品搜索，快速定位目标商品。</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-start">
+                                <i class="fas fa-chart-line text-primary fs-4 me-3 mt-1"></i>
+                                <div>
+                                    <h3 class="h5">价格追踪</h3>
+                                    <p class="text-muted">实时监控商品价格变化，把握最佳购买时机。</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-start">
+                                <i class="fas fa-comments text-primary fs-4 me-3 mt-1"></i>
+                                <div>
+                                    <h3 class="h5">智能客服</h3>
+                                    <p class="text-muted">24小时在线AI客服，解答购物疑问。</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2 class="h4 mb-3">我们的团队</h2>
+                    <p>我们是一支充满激情的年轻团队，由人工智能、大数据、软件开发等领域的专业人才组成。团队成员来自国内外知名高校和互联网公司，拥有丰富的行业经验。</p>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="h4 mb-3">联系我们</h2>
+                    <p>如果您对{{ site_name }}有任何建议或意见，欢迎随时与我们联系：</p>
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-envelope me-2"></i>邮箱：support@example.com</li>
+                        <li><i class="fas fa-phone me-2"></i>电话：400-123-4567</li>
+                        <li><i class="fas fa-map-marker-alt me-2"></i>地址：北京市朝阳区xxx街xxx号</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

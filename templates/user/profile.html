@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+
+{% block title %}个人资料 - {{ site_name }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-body text-center">
+                    <img src="{{ current_user.avatar_url or url_for('static', filename='img/default-avatar.png') }}" 
+                         class="rounded-circle mb-3" alt="头像" style="width: 128px; height: 128px;">
+                    <h5 class="card-title mb-0">{{ current_user.username }}</h5>
+                    <p class="text-muted">{{ current_user.email }}</p>
+                    <div class="d-grid">
+                        <a href="{{ url_for('user.settings') }}" class="btn btn-primary">
+                            <i class="fas fa-cog me-2"></i>编辑资料
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mt-3">
+                <div class="card-body">
+                    <h6 class="card-title mb-3">账户信息</h6>
+                    <div class="mb-2">
+                        <small class="text-muted">注册时间</small>
+                        <p class="mb-0">{{ current_user.created_at.strftime('%Y-%m-%d') }}</p>
+                    </div>
+                    <div class="mb-2">
+                        <small class="text-muted">最后登录</small>
+                        <p class="mb-0">{{ current_user.last_login.strftime('%Y-%m-%d %H:%M') if current_user.last_login else '从未登录' }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">个人资料</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-sm-3">
+                            <h6 class="mb-0">性别</h6>
+                        </div>
+                        <div class="col-sm-9 text-muted">
+                            {{ current_user.gender or '未设置' }}
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-3">
+                            <h6 class="mb-0">年龄</h6>
+                        </div>
+                        <div class="col-sm-9 text-muted">
+                            {{ current_user.age or '未设置' }}
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-3">
+                            <h6 class="mb-0">职业</h6>
+                        </div>
+                        <div class="col-sm-9 text-muted">
+                            {{ current_user.occupation or '未设置' }}
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-3">
+                            <h6 class="mb-0">月度预算</h6>
+                        </div>
+                        <div class="col-sm-9 text-muted">
+                            {{ '¥%.2f'|format(current_user.monthly_budget) if current_user.monthly_budget else '未设置' }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">购物偏好</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-sm-3">
+                            <h6 class="mb-0">感兴趣的品类</h6>
+                        </div>
+                        <div class="col-sm-9">
+                            {% if current_user.interests %}
+                                {% for interest in current_user.interests %}
+                                    <span class="badge bg-primary me-1">{{ interest }}</span>
+                                {% endfor %}
+                            {% else %}
+                                <span class="text-muted">未设置</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <h6 class="mb-0">价格敏感度</h6>
+                        </div>
+                        <div class="col-sm-9">
+                            <div class="progress">
+                                <div class="progress-bar" role="progressbar" 
+                                     style="width: {{ current_user.price_sensitivity or 50 }}%"
+                                     aria-valuenow="{{ current_user.price_sensitivity or 50 }}" 
+                                     aria-valuemin="0" aria-valuemax="100">
+                                    {{ current_user.price_sensitivity or 50 }}%
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

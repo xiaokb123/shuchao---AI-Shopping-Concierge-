@@ -1,0 +1,255 @@
+{% extends "base.html" %}
+
+{% block title %}商品列表 - 数潮{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row">
+        <!-- 左侧筛选栏 -->
+        <div class="col-md-3">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">筛选条件</h5>
+                </div>
+                <div class="card-body">
+                    <!-- 搜索框 -->
+                    <div class="mb-3">
+                        <label class="form-label">关键词搜索</label>
+                        <input type="text" class="form-control" id="searchInput" placeholder="输入商品名称、品牌等">
+                    </div>
+
+                    <!-- 分类筛选 -->
+                    <div class="mb-3">
+                        <label class="form-label">商品分类</label>
+                        <select class="form-select" id="categorySelect">
+                            <option value="">全部分类</option>
+                        </select>
+                    </div>
+
+                    <!-- 价格区间 -->
+                    <div class="mb-3">
+                        <label class="form-label">价格区间</label>
+                        <div class="input-group">
+                            <input type="number" class="form-control" id="minPrice" placeholder="最低价">
+                            <span class="input-group-text">-</span>
+                            <input type="number" class="form-control" id="maxPrice" placeholder="最高价">
+                        </div>
+                    </div>
+
+                    <!-- 排序方式 -->
+                    <div class="mb-3">
+                        <label class="form-label">排序方式</label>
+                        <select class="form-select" id="sortSelect">
+                            <option value="default">默认排序</option>
+                            <option value="price_asc">价格从低到高</option>
+                            <option value="price_desc">价格从高到低</option>
+                            <option value="sales">销量优先</option>
+                            <option value="rating">评分优先</option>
+                        </select>
+                    </div>
+
+                    <button class="btn btn-primary w-100" id="applyFilters">应用筛选</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 右侧商品列表 -->
+        <div class="col-md-9">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4>商品列表</h4>
+                <div class="d-flex align-items-center">
+                    <span class="me-2">每页显示：</span>
+                    <select class="form-select form-select-sm" style="width: auto;" id="perPageSelect">
+                        <option value="12">12</option>
+                        <option value="24">24</option>
+                        <option value="36">36</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- 商品网格 -->
+            <div class="row" id="productsGrid">
+                <!-- 商品卡片将通过JavaScript动态加载 -->
+            </div>
+
+            <!-- 分页 -->
+            <nav aria-label="Page navigation" class="mt-4">
+                <ul class="pagination justify-content-center" id="pagination">
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let currentPage = 1;
+let currentFilters = {
+    q: '',
+    category: '',
+    min_price: null,
+    max_price: null,
+    sort: 'default',
+    per_page: 12
+};
+
+// 加载分类列表
+function loadCategories() {
+    fetch('/products/categories')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const categorySelect = document.getElementById('categorySelect');
+                data.data.forEach(category => {
+                    const option = document.createElement('option');
+                    option.value = category;
+                    option.textContent = category;
+                    categorySelect.appendChild(option);
+                });
+            }
+        })
+        .catch(error => console.error('Error loading categories:', error));
+}
+
+// 加载商品列表
+function loadProducts(page = 1) {
+    const params = new URLSearchParams({
+        ...currentFilters,
+        page: page
+    });
+
+    fetch(`/products/search?${params}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                displayProducts(data.data.products);
+                updatePagination(data.data.pagination);
+            }
+        })
+        .catch(error => console.error('Error loading products:', error));
+}
+
+// 显示商品列表
+function displayProducts(products) {
+    const grid = document.getElementById('productsGrid');
+    grid.innerHTML = '';
+
+    products.forEach(product => {
+        const card = document.createElement('div');
+        card.className = 'col-md-4 col-lg-3 mb-4';
+        card.innerHTML = `
+            <div class="card h-100">
+                <img src="${product.images?.[0] || 'https://via.placeholder.com/300'}" 
+                     class="card-img-top" alt="${product.name}"
+                     style="height: 200px; object-fit: cover;">
+                <div class="card-body">
+                    <h5 class="card-title text-truncate">${product.name}</h5>
+                    <p class="card-text text-danger mb-2">¥${product.current_price.toFixed(2)}</p>
+                    ${product.original_price ? `
+                    <p class="card-text text-muted text-decoration-line-through mb-2">
+                        ¥${product.original_price.toFixed(2)}
+                    </p>` : ''}
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="badge bg-primary">${product.platform}</span>
+                            ${product.rating ? `
+                            <span class="badge bg-warning text-dark">
+                                <i class="bi bi-star-fill"></i> ${product.rating.toFixed(1)}
+                            </span>` : ''}
+                        </div>
+                        <a href="/products/${product.id}" class="btn btn-outline-primary btn-sm">查看详情</a>
+                    </div>
+                </div>
+            </div>
+        `;
+        grid.appendChild(card);
+    });
+}
+
+// 更新分页
+function updatePagination(pagination) {
+    const paginationElement = document.getElementById('pagination');
+    paginationElement.innerHTML = '';
+
+    // 上一页
+    const prevLi = document.createElement('li');
+    prevLi.className = `page-item ${pagination.page === 1 ? 'disabled' : ''}`;
+    prevLi.innerHTML = `
+        <a class="page-link" href="#" data-page="${pagination.page - 1}">上一页</a>
+    `;
+    paginationElement.appendChild(prevLi);
+
+    // 页码
+    for (let i = 1; i <= pagination.pages; i++) {
+        if (
+            i === 1 || 
+            i === pagination.pages || 
+            (i >= pagination.page - 2 && i <= pagination.page + 2)
+        ) {
+            const li = document.createElement('li');
+            li.className = `page-item ${i === pagination.page ? 'active' : ''}`;
+            li.innerHTML = `
+                <a class="page-link" href="#" data-page="${i}">${i}</a>
+            `;
+            paginationElement.appendChild(li);
+        } else if (
+            i === pagination.page - 3 || 
+            i === pagination.page + 3
+        ) {
+            const li = document.createElement('li');
+            li.className = 'page-item disabled';
+            li.innerHTML = '<span class="page-link">...</span>';
+            paginationElement.appendChild(li);
+        }
+    }
+
+    // 下一页
+    const nextLi = document.createElement('li');
+    nextLi.className = `page-item ${pagination.page === pagination.pages ? 'disabled' : ''}`;
+    nextLi.innerHTML = `
+        <a class="page-link" href="#" data-page="${pagination.page + 1}">下一页</a>
+    `;
+    paginationElement.appendChild(nextLi);
+
+    // 添加点击事件
+    paginationElement.querySelectorAll('.page-link').forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const page = parseInt(e.target.dataset.page);
+            if (!isNaN(page)) {
+                currentPage = page;
+                loadProducts(page);
+            }
+        });
+    });
+}
+
+// 初始化事件监听
+document.addEventListener('DOMContentLoaded', function() {
+    loadCategories();
+    loadProducts();
+
+    // 筛选按钮点击事件
+    document.getElementById('applyFilters').addEventListener('click', () => {
+        currentFilters = {
+            q: document.getElementById('searchInput').value,
+            category: document.getElementById('categorySelect').value,
+            min_price: document.getElementById('minPrice').value || null,
+            max_price: document.getElementById('maxPrice').value || null,
+            sort: document.getElementById('sortSelect').value,
+            per_page: document.getElementById('perPageSelect').value
+        };
+        currentPage = 1;
+        loadProducts(1);
+    });
+
+    // 每页显示数量变化事件
+    document.getElementById('perPageSelect').addEventListener('change', (e) => {
+        currentFilters.per_page = e.target.value;
+        currentPage = 1;
+        loadProducts(1);
+    });
+});
+</script>
+{% endblock %} 

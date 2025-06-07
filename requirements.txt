@@ -1,0 +1,71 @@
+# Core Web Framework
+Flask==2.3.3
+Flask-SQLAlchemy==3.1.1
+Flask-Login==0.6.2
+Flask-Migrate==4.1.0
+Flask-WTF==1.2.1
+Flask-Mail==0.10.0
+Flask-Limiter==3.8.0
+Flask-Caching==2.3.0
+Flask-CORS==3.0.10
+Werkzeug==2.3.7
+Jinja2==3.1.4
+itsdangerous==2.2.0
+
+# Database
+SQLAlchemy==2.0.20
+alembic==1.14.1
+greenlet==3.0.1
+
+# Security
+cryptography==44.0.0
+bleach==6.1.0
+PyJWT==2.8.0
+python-dotenv==1.0.0
+
+# Authentication & Authorization
+email-validator==2.2.0
+dnspython==2.6.1
+
+# AI & Machine Learning
+openai==1.12.0
+numpy>=1.24.0
+pandas>=1.5.0
+scikit-learn>=1.0.2
+jieba==0.42.1
+
+# Cache & Session
+redis==5.0.1
+cachelib==0.9.0
+
+# Utils
+python-dateutil==2.8.2
+requests==2.26.0
+beautifulsoup4==4.13.3
+html5lib==1.1
+click==8.1.7
+colorama==0.4.6
+
+# Development & Testing
+pytest==6.2.5
+pytest-cov==4.1.0
+coverage==7.4.1
+
+# Production
+gunicorn==21.2.0
+gevent==24.2.1
+
+# Search
+elasticsearch==7.14.0
+elasticsearch-dsl==7.4.0
+
+# Crawler
+selenium==3.141.0
+scrapy>=2.8.0
+
+# Analytics & AI
+transformers>=4.30.0
+torch>=2.0.0
+
+# Forms
+WTForms==3.0.1 

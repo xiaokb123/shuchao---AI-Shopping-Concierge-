@@ -1,0 +1,535 @@
+{% extends "base.html" %}
+
+{% block title %}用户设置 - {{ site_name }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-lg-3">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">设置菜单</h5>
+                </div>
+                <div class="list-group list-group-flush">
+                    <a href="#profile" class="list-group-item list-group-item-action active" data-bs-toggle="list">
+                        <i class="fas fa-user me-2"></i>个人资料
+                    </a>
+                    <a href="#budget" class="list-group-item list-group-item-action" data-bs-toggle="list">
+                        <i class="fas fa-wallet me-2"></i>预算设置
+                    </a>
+                    <a href="#preferences" class="list-group-item list-group-item-action" data-bs-toggle="list">
+                        <i class="fas fa-heart me-2"></i>购物偏好
+                    </a>
+                    <a href="#notifications" class="list-group-item list-group-item-action" data-bs-toggle="list">
+                        <i class="fas fa-bell me-2"></i>通知设置
+                    </a>
+                    <a href="#security" class="list-group-item list-group-item-action" data-bs-toggle="list">
+                        <i class="fas fa-shield-alt me-2"></i>安全设置
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-9">
+            <div class="tab-content">
+                <!-- 个人资料 -->
+                <div class="tab-pane fade show active" id="profile">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">个人资料</h5>
+                        </div>
+                        <div class="card-body">
+                            <form id="profileForm">
+                                <div class="mb-3">
+                                    <label class="form-label">用户名</label>
+                                    <input type="text" class="form-control" name="username" value="{{ current_user.username }}">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">邮箱</label>
+                                    <input type="email" class="form-control" name="email" value="{{ current_user.email }}">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">性别</label>
+                                    <select class="form-select" name="gender">
+                                        <option value="">请选择</option>
+                                        <option value="male" {% if current_user.gender == 'male' %}selected{% endif %}>男</option>
+                                        <option value="female" {% if current_user.gender == 'female' %}selected{% endif %}>女</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">年龄</label>
+                                    <input type="number" class="form-control" name="age" value="{{ current_user.age }}">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">职业</label>
+                                    <input type="text" class="form-control" name="occupation" value="{{ current_user.occupation }}">
+                                </div>
+                                <button type="submit" class="btn btn-primary">保存更改</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 预算设置 -->
+                <div class="tab-pane fade" id="budget">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">预算设置</h5>
+                        </div>
+                        <div class="card-body">
+                            <form id="budgetForm">
+                                <div class="mb-3">
+                                    <label class="form-label">月度总预算</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">¥</span>
+                                        <input type="number" class="form-control" name="monthly_budget" 
+                                               value="{{ current_user.monthly_budget or 0 }}" min="0" step="0.01">
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">分类预算</label>
+                                    <div id="categoryBudgets">
+                                        <!-- 分类预算将通过JavaScript动态添加 -->
+                                    </div>
+                                    <button type="button" class="btn btn-outline-primary btn-sm mt-2" onclick="addCategoryBudget()">
+                                        <i class="fas fa-plus"></i> 添加分类预算
+                                    </button>
+                                </div>
+                                
+                                <button type="submit" class="btn btn-primary">保存预算</button>
+                            </form>
+                        </div>
+                    </div>
+                    
+                    <div class="card mt-4">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">预算概览</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="card bg-light">
+                                        <div class="card-body">
+                                            <h6 class="card-subtitle mb-2 text-muted">总预算</h6>
+                                            <h4 class="card-title" id="totalBudget">¥0</h4>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="card bg-light">
+                                        <div class="card-body">
+                                            <h6 class="card-subtitle mb-2 text-muted">已使用</h6>
+                                            <h4 class="card-title" id="totalSpent">¥0</h4>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="card bg-light">
+                                        <div class="card-body">
+                                            <h6 class="card-subtitle mb-2 text-muted">剩余</h6>
+                                            <h4 class="card-title" id="totalRemaining">¥0</h4>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-4">
+                                <h6>分类预算使用情况</h6>
+                                <div id="categoryBudgetProgress">
+                                    <!-- 分类预算进度条将通过JavaScript动态添加 -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card mt-4">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">预算统计</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <select class="form-select" id="statisticsPeriod" onchange="loadBudgetStatistics()">
+                                    <option value="month">本月</option>
+                                    <option value="quarter">本季度</option>
+                                    <option value="year">本年</option>
+                                </select>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <canvas id="categoryChart"></canvas>
+                                </div>
+                                <div class="col-md-6">
+                                    <canvas id="trendChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 购物偏好 -->
+                <div class="tab-pane fade" id="preferences">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">购物偏好</h5>
+                        </div>
+                        <div class="card-body">
+                            <form id="preferencesForm">
+                                <div class="mb-3">
+                                    <label class="form-label">感兴趣的品类</label>
+                                    <select class="form-select" name="interests" multiple>
+                                        <option value="electronics">电子产品</option>
+                                        <option value="fashion">服装鞋包</option>
+                                        <option value="beauty">美妆个护</option>
+                                        <option value="home">家居生活</option>
+                                        <option value="sports">运动户外</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">价格敏感度</label>
+                                    <input type="range" class="form-range" name="price_sensitivity" 
+                                           min="0" max="100" value="{{ current_user.price_sensitivity or 50 }}">
+                                </div>
+                                <button type="submit" class="btn btn-primary">保存偏好</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 通知设置 -->
+                <div class="tab-pane fade" id="notifications">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">通知设置</h5>
+                        </div>
+                        <div class="card-body">
+                            <form id="notificationsForm">
+                                <div class="form-check form-switch mb-3">
+                                    <input class="form-check-input" type="checkbox" id="emailNotifications">
+                                    <label class="form-check-label" for="emailNotifications">邮件通知</label>
+                                </div>
+                                <div class="form-check form-switch mb-3">
+                                    <input class="form-check-input" type="checkbox" id="priceAlerts">
+                                    <label class="form-check-label" for="priceAlerts">价格提醒</label>
+                                </div>
+                                <div class="form-check form-switch mb-3">
+                                    <input class="form-check-input" type="checkbox" id="recommendationNotifications">
+                                    <label class="form-check-label" for="recommendationNotifications">推荐通知</label>
+                                </div>
+                                <button type="submit" class="btn btn-primary">保存设置</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 安全设置 -->
+                <div class="tab-pane fade" id="security">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">安全设置</h5>
+                        </div>
+                        <div class="card-body">
+                            <form id="securityForm">
+                                <div class="mb-3">
+                                    <label class="form-label">当前密码</label>
+                                    <input type="password" class="form-control" name="current_password">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">新密码</label>
+                                    <input type="password" class="form-control" name="new_password">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">确认新密码</label>
+                                    <input type="password" class="form-control" name="confirm_password">
+                                </div>
+                                <button type="submit" class="btn btn-primary">修改密码</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// 处理个人资料表单提交
+document.getElementById('profileForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const data = Object.fromEntries(formData.entries());
+    
+    try {
+        const response = await fetch('/user/profile', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            alert('个人资料更新成功！');
+        } else {
+            throw new Error(result.message);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('更新失败：' + error.message);
+    }
+});
+
+// 处理预算表单提交
+document.getElementById('budgetForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const categoryInputs = document.querySelectorAll('.category-budget');
+    const categoryBudgets = {};
+    
+    categoryInputs.forEach(input => {
+        const category = input.getAttribute('data-category');
+        const amount = input.value;
+        if (category && amount) {
+            categoryBudgets[category] = parseFloat(amount);
+        }
+    });
+    
+    const data = {
+        monthly_budget: parseFloat(formData.get('monthly_budget')),
+        category_budgets: categoryBudgets
+    };
+    
+    try {
+        const response = await fetch('/user/budget', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            alert('预算设置成功！');
+            loadBudgetOverview();
+        } else {
+            throw new Error(result.message);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('设置失败：' + error.message);
+    }
+});
+
+// 加载预算概览
+async function loadBudgetOverview() {
+    try {
+        const response = await fetch('/user/budget');
+        const data = await response.json();
+        
+        if (data.success) {
+            // 更新总预算显示
+            document.getElementById('totalBudget').textContent = `¥${data.monthly_budget.toFixed(2)}`;
+            document.getElementById('totalSpent').textContent = `¥${data.total_spent.toFixed(2)}`;
+            document.getElementById('totalRemaining').textContent = `¥${data.remaining.toFixed(2)}`;
+            
+            // 更新分类预算进度条
+            const progressContainer = document.getElementById('categoryBudgetProgress');
+            progressContainer.innerHTML = '';
+            
+            data.categories.forEach(category => {
+                const progressHtml = `
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span>${category.category}</span>
+                            <span>¥${category.spent.toFixed(2)} / ¥${category.amount.toFixed(2)}</span>
+                        </div>
+                        <div class="progress">
+                            <div class="progress-bar ${category.status === 'exceeded' ? 'bg-danger' : 
+                                                     category.status === 'warning' ? 'bg-warning' : 'bg-success'}"
+                                 role="progressbar"
+                                 style="width: ${Math.min(category.percentage, 100)}%"
+                                 aria-valuenow="${category.percentage}"
+                                 aria-valuemin="0"
+                                 aria-valuemax="100">
+                                ${category.percentage.toFixed(1)}%
+                            </div>
+                        </div>
+                    </div>
+                `;
+                progressContainer.insertAdjacentHTML('beforeend', progressHtml);
+            });
+            
+            // 检查预算警告
+            checkBudgetAlerts();
+        }
+    } catch (error) {
+        console.error('Error loading budget overview:', error);
+    }
+}
+
+// 添加分类预算输入
+function addCategoryBudget() {
+    const container = document.getElementById('categoryBudgets');
+    const index = container.children.length;
+    
+    const categoryHtml = `
+        <div class="input-group mb-2">
+            <select class="form-select" onchange="updateCategoryInput(this)">
+                <option value="">选择类别</option>
+                <option value="books">图书</option>
+                <option value="electronics">电子产品</option>
+                <option value="clothing">服装</option>
+                <option value="others">其他</option>
+            </select>
+            <input type="number" class="form-control category-budget" 
+                   placeholder="输入预算金额" min="0" step="0.01" disabled>
+            <button type="button" class="btn btn-outline-danger" 
+                    onclick="removeCategoryBudget(this)">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    `;
+    
+    container.insertAdjacentHTML('beforeend', categoryHtml);
+}
+
+// 更新分类预算输入状态
+function updateCategoryInput(select) {
+    const input = select.nextElementSibling;
+    input.disabled = !select.value;
+    if (select.value) {
+        input.setAttribute('data-category', select.value);
+    } else {
+        input.removeAttribute('data-category');
+    }
+}
+
+// 移除分类预算输入
+function removeCategoryBudget(button) {
+    button.closest('.input-group').remove();
+}
+
+// 检查预算警告
+async function checkBudgetAlerts() {
+    try {
+        const response = await fetch('/user/budget/alerts');
+        const data = await response.json();
+        
+        if (data.success && data.alerts.length > 0) {
+            const alertsHtml = data.alerts.map(alert => `
+                <div class="alert alert-${alert.level} alert-dismissible fade show" role="alert">
+                    ${alert.message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            `).join('');
+            
+            document.querySelector('.card-body').insertAdjacentHTML('afterbegin', alertsHtml);
+        }
+    } catch (error) {
+        console.error('Error checking budget alerts:', error);
+    }
+}
+
+// 加载预算统计
+async function loadBudgetStatistics() {
+    try {
+        const period = document.getElementById('statisticsPeriod').value;
+        const response = await fetch(`/user/budget/statistics?period=${period}`);
+        const data = await response.json();
+        
+        if (data.success) {
+            updateCategoryChart(data.statistics);
+            updateTrendChart(data.statistics);
+        }
+    } catch (error) {
+        console.error('Error loading budget statistics:', error);
+    }
+}
+
+// 更新分类统计图表
+function updateCategoryChart(statistics) {
+    const ctx = document.getElementById('categoryChart').getContext('2d');
+    const categories = statistics.total.categories;
+    
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: categories.map(c => c.category),
+            datasets: [{
+                data: categories.map(c => c.spent),
+                backgroundColor: [
+                    '#FF6384',
+                    '#36A2EB',
+                    '#FFCE56',
+                    '#4BC0C0',
+                    '#9966FF'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                },
+                title: {
+                    display: true,
+                    text: '分类支出占比'
+                }
+            }
+        }
+    });
+}
+
+// 更新趋势统计图表
+function updateTrendChart(statistics) {
+    const ctx = document.getElementById('trendChart').getContext('2d');
+    const trend = statistics.trend;
+    
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: trend.map(t => t.date),
+            datasets: [{
+                label: '支出趋势',
+                data: trend.map(t => t.spent),
+                borderColor: '#36A2EB',
+                tension: 0.1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                },
+                title: {
+                    display: true,
+                    text: '支出趋势'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+}
+
+// 初始化加载
+document.addEventListener('DOMContentLoaded', function() {
+    loadBudgetOverview();
+    loadBudgetStatistics();
+});
+</script>
+{% endblock %} 
