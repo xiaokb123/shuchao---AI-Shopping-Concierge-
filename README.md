@@ -1,7 +1,7 @@
 # 数潮智能购物助手
 
 ## 演示视频
-[![点击查看演示视频](https://via.placeholder.com/600x300?text=Demo+Video)](https://example.com/demo.mp4)
+[![点击查看演示视频](https://via.placeholder.com/600x300?text=Demo+Video)](演示视频.mp4)
 
 ## 项目概述
 数潮智能购物助手是基于 Flask 框架开发的 AI 导购系统，旨在根据用户的需求、预算以及购物偏好为用户推荐合适的商品。系统集成了大语言模型（如 OpenAI 的 GPT-3.5-turbo），支持用户通过对话获取专业的购物建议，并结合数据爬取、用户画像构建及论坛交流等模块，实现精准的商品推荐与消费预算管理。
